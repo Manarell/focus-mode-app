@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Focus Mode</title>
+<style>
+  :root {
+    --bg: #efe9dc;
+    --bg-deep: #e4dcc8;
+    --card: #f9f5ec;
+    --ink: #3a3226;
+    --muted: #7d7260;
+    --green: #4a7c59;
+    --green-light: #a3c9a8;
+    --amber: #b5764a;
+    --danger: #a8483f;
+    --border: #ddd3ba;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: -apple-system, Roboto, 'Segoe UI', sans-serif;
+    background: linear-gradient(180deg, var(--bg) 0%, var(--bg-deep) 100%);
+    background-attachment: fixed;
+    color: var(--ink);
+    -webkit-tap-highlight-color: transparent;
+  }
+  .screen { display: none; padding: 20px 18px 90px; max-width: 480px; margin: 0 auto; min-height: 100vh; }
+  .screen.active { display: block; }
+  h1 { font-size: 20px; font-weight: 600; margin: 0 0 4px; }
+  .muted { color: var(--muted); font-size: 13px; }
+  .card {
+    background: var(--card);
+    border-radius: 16px;
+    border: 1px solid var(--border);
+    padding: 16px;
+    margin-bottom: 14px;
+    box-shadow: 0 1px 3px rgba(58,50,38,0.06);
+  }
+  .tree-scene {
+    border-radius: 16px;
+    margin-bottom: 14px;
+    padding: 20px 16px 16px;
+    text-align: center;
+    background:
+      radial-gradient(circle at 50% 8%, rgba(255,210,140,0.5) 0%, rgba(255,210,140,0) 45%),
+      linear-gradient(180deg, #e8dcc4 0%, #e3ddc1 55%, #cdd6ad 100%);
+    border: 1px solid var(--border);
+    overflow: hidden;
+    position: relative;
+    box-shadow: 0 1px 3px rgba(58,50,38,0.06);
+  }
+  button {
+    font-family: inherit;
+    border: 1px solid var(--border);
+    background: var(--card);
+    border-radius: 12px;
+    padding: 12px;
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--ink);
+    cursor: pointer;
+  }
+  button.primary { background: var(--green); color: white; border: none; }
+  button.danger-outline { color: var(--danger); borde
