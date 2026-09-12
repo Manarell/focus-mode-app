@@ -63,4 +63,591 @@
     cursor: pointer;
   }
   button.primary { background: var(--green); color: white; border: none; }
-  button.danger-outline { color: var(--danger); borde
+  button.danger-outline { color: var(--danger); border-color: var(--danger); }
+  button:active { transform: scale(0.98); }
+  .full { width: 100%; }
+  input[type=text], input[type=time] {
+    width: 100%;
+    padding: 10px;
+    border-radius: 10px;
+    border: 1px solid var(--border);
+    font-size: 14px;
+    font-family: inherit;
+    margin-bottom: 12px;
+    background: var(--card);
+    color: var(--ink);
+  }
+  .habit-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 0;
+    border-bottom: 1px solid var(--border);
+  }
+  .habit-row:last-child { border-bottom: none; }
+  .habit-row input[type=checkbox] { width: 20px; height: 20px; accent-color: var(--green); }
+  .nav {
+    position: fixed;
+    bottom: 0; left: 0; right: 0;
+    background: var(--card);
+    border-top: 1px solid var(--border);
+    display: flex;
+    padding: 8px 0 max(8px, env(safe-area-inset-bottom));
+    max-width: 480px;
+    margin: 0 auto;
+  }
+  .nav button {
+    flex: 1;
+    border: none;
+    background: none;
+    font-size: 11px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    color: var(--muted);
+  }
+  .nav button.active { color: var(--green); font-weight: 600; }
+  .chip {
+    display: inline-block;
+    padding: 5px 12px;
+    border-radius: 20px;
+    border: 1px solid var(--border);
+    font-size: 12px;
+    margin-right: 6px;
+    color: var(--muted);
+  }
+  .chip.selected { background: #e7f0e9; color: var(--green); border-color: var(--green); }
+  #session-screen { text-align: center; }
+  #timer-display { font-size: 44px; font-weight: 600; margin: 10px 0 4px; }
+  #hold-quit {
+    width: 100%;
+    padding: 16px;
+    color: var(--danger);
+    border-color: var(--border);
+    position: relative;
+    overflow: hidden;
+  }
+  #hold-quit .fill {
+    position: absolute; left: 0; top: 0; bottom: 0;
+    width: 0%;
+    background: rgba(179,69,61,0.15);
+    transition: width 0.05s linear;
+  }
+  .banner { font-size: 12px; color: var(--muted); margin-top: 8px; }
+  .growth-line { height: 6px; background: var(--border); border-radius: 3px; overflow: hidden; margin: 10px 0; }
+  .growth-line .fill { height: 100%; background: var(--green); }
+  .avatar {
+    width: 40px; height: 40px; border-radius: 50%;
+    background: #e7f0e9; color: var(--green);
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 600; font-size: 14px; flex-shrink: 0;
+  }
+  .connection-row {
+    display: flex; align-items: center; gap: 12px;
+    padding: 12px 0; border-bottom: 1px solid var(--border);
+  }
+  .connection-row:last-child { border-bottom: none; }
+  .onboard-feature {
+    display: flex; align-items: center; gap: 10px;
+    padding: 8px 0; text-align: left;
+  }
+</style>
+</head>
+<body>
+
+<div id="onboarding-screen" class="screen active">
+  <div style="min-height: 80vh; display:flex; flex-direction:column; justify-content:center; text-align:center;">
+    <div style="border-radius:16px; overflow:hidden; margin-bottom:16px;">
+      <img src="assets/tree-sapling.jpg" style="width:100%; max-height:200px; object-fit:cover; display:block;" alt="A sunlit oak tree">
+    </div>
+    <h1 style="font-size:22px;">Plant your first tree</h1>
+    <p class="muted" style="line-height:1.6; margin:0 0 20px;">A little less scrolling, a little more of what matters to you. Your tree grows with you - no pressure, no leaderboard.</p>
+
+    <div style="margin-bottom:20px;">
+      <div class="onboard-feature"><span>▶️</span><span style="font-size:13px;">Start short focus sessions</span></div>
+      <div class="onboard-feature"><span>✅</span><span style="font-size:13px;">Track a habit or two</span></div>
+      <div class="onboard-feature"><span>🤝</span><span style="font-size:13px;">Share with someone, if you want</span></div>
+    </div>
+
+    <button class="primary full" onclick="finishOnboarding()">Add your first habit</button>
+  </div>
+</div>
+
+<div id="home-screen" class="screen">
+  <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
+    <div>
+      <p class="muted" id="today-date" style="margin:0;"></p>
+      <h1>Focus Mode</h1>
+    </div>
+  </div>
+
+  <div class="tree-scene">
+    <div style="border-radius:14px; overflow:hidden; margin-bottom:8px;">
+      <img id="tree-photo" src="assets/tree-full.jpg"
+           alt="A sunlit oak tree, reflecting your consistency"
+           style="width:100%; display:block; object-fit:cover; max-height:220px; transition: filter 0.4s ease, opacity 0.4s ease;">
+    </div>
+    <p style="font-weight:600; margin:8px 0 2px;" id="tree-stage-label">Sapling</p>
+    <p class="muted" id="tree-stage-sub" style="margin:0 0 10px;">Keep it up</p>
+    <button id="sound-toggle" style="margin: 0 auto; display:flex; align-items:center; gap:8px; background:rgba(255,255,255,0.7);">
+      <span id="sound-icon">🔈</span> <span id="sound-label">Play forest sounds</span>
+    </button>
+  </div>
+
+  <button class="primary full" onclick="goTo('setup-screen')" style="margin-bottom:14px;">Start a focus session</button>
+
+  <div class="card">
+    <p style="font-weight:600; margin:0 0 8px;">Today's habits</p>
+    <div id="habit-list"></div>
+    <button class="full" style="margin-top:10px;" onclick="goTo('habit-new-screen')">+ Add habit</button>
+  </div>
+
+  <div class="card" style="text-align:center;">
+    <p class="muted" style="margin:0 0 8px; font-size:12px;">Testing only - preview tree stages</p>
+    <div style="display:flex; gap:6px; justify-content:center; flex-wrap:wrap;">
+      <span class="chip" onclick="setTestScore(5)">Bare</span>
+      <span class="chip" onclick="setTestScore(25)">Sapling</span>
+      <span class="chip" onclick="setTestScore(45)">Young</span>
+      <span class="chip" onclick="setTestScore(65)">Full</span>
+      <span class="chip" onclick="setTestScore(90)">Flourishing</span>
+    </div>
+  </div>
+</div>
+
+<div id="setup-screen" class="screen">
+  <h1>New session</h1>
+  <p class="muted" style="margin-bottom:16px;">What should this session block?</p>
+  <div class="card">
+    <div id="block-mode-options"></div>
+  </div>
+  <div class="card">
+    <p style="font-weight:600; margin:0 0 8px;">Duration</p>
+    <div id="duration-options"></div>
+  </div>
+  <button class="primary full" onclick="startSession()">Start session</button>
+  <button class="full" style="margin-top:10px;" onclick="goTo('home-screen')">Cancel</button>
+</div>
+
+<div id="session-screen" class="screen">
+  <p class="muted" id="session-blocking-label" style="margin-top:20px;"></p>
+  <img id="session-tree-photo" src="assets/tree-full.jpg"
+     alt="The tree, brightening as the session progresses"
+     style="width:120px; height:120px; object-fit:cover; border-radius:12px; margin: 8px auto; display:block; transition: filter 0.4s ease;">
+  <div id="timer-display">25:00</div>
+  <p class="muted" id="timer-sub">remaining</p>
+
+  <button id="session-sound-toggle" style="margin: 20px auto 24px; display:flex; align-items:center; gap:8px;">
+    <span id="session-sound-icon">🔈</span> <span id="session-sound-label">Forest sounds off</span>
+  </button>
+
+  <button id="hold-quit"><div class="fill" id="hold-fill"></div><span>Hold to end early</span></button>
+  <p class="banner">Ending early won't count toward today's growth</p>
+</div>
+
+<div id="quit-reason-screen" class="screen" style="text-align:center;">
+  <h1>Ending early</h1>
+  <p class="muted" style="margin-bottom:16px;">What happened? (just for you, no judgment)</p>
+  <div style="display:flex; flex-direction:column; gap:10px;">
+    <button class="full" onclick="confirmQuit('Got a call/message')">Got a call or message</button>
+    <button class="full" onclick="confirmQuit('Changed my mind')">Changed my mind</button>
+    <button class="full" onclick="confirmQuit('Emergency')">Emergency</button>
+    <button class="full" onclick="confirmQuit('Other')">Other</button>
+  </div>
+</div>
+
+<div id="habit-new-screen" class="screen">
+  <h1>New habit</h1>
+  <p class="muted" style="margin-bottom:16px;">Name it, set when it repeats</p>
+  <input type="text" id="habit-name-input" placeholder="No phone after 10pm">
+  <p style="font-weight:600; margin:0 0 8px; font-size:13px;">Repeats</p>
+  <div style="margin-bottom:16px;">
+    <span class="chip selected" data-repeat="daily" onclick="selectRepeat(this)">Every day</span>
+    <span class="chip" data-repeat="weekday" onclick="selectRepeat(this)">Weekdays</span>
+  </div>
+  <button class="primary full" onclick="saveHabit()">Save habit</button>
+  <button class="full" style="margin-top:10px;" onclick="goTo('home-screen')">Cancel</button>
+</div>
+
+<div id="people-screen" class="screen">
+  <h1>People</h1>
+  <p class="muted" style="margin-bottom:16px;">Everything's private until you choose to share it</p>
+  <div class="card" id="people-list"></div>
+  <button class="full" onclick="goTo('add-person-screen')">+ Add someone</button>
+</div>
+
+<div id="add-person-screen" class="screen">
+  <h1>Add someone</h1>
+  <input type="text" id="person-name-input" placeholder="Name">
+  <p style="font-weight:600; margin:0 0 8px; font-size:13px;">Relation</p>
+  <div style="margin-bottom:16px;">
+    <span class="chip selected" data-rel="Partner" onclick="selectRel(this)">Partner</span>
+    <span class="chip" data-rel="Family" onclick="selectRel(this)">Family</span>
+    <span class="chip" data-rel="Friend" onclick="selectRel(this)">Friend</span>
+  </div>
+  <p style="font-weight:600; margin:0 0 8px; font-size:13px;">Share which habits with them?</p>
+  <div id="share-habit-picker" style="margin-bottom:16px;"></div>
+  <button class="primary full" onclick="savePerson()">Save</button>
+  <button class="full" style="margin-top:10px;" onclick="goTo('people-screen')">Cancel</button>
+</div>
+
+<div class="nav">
+  <button class="nav-btn active" data-screen="home-screen" onclick="goTo('home-screen')">🏠<span>Home</span></button>
+  <button class="nav-btn" data-screen="setup-screen" onclick="goTo('setup-screen')">▶️<span>Focus</span></button>
+  <button class="nav-btn" data-screen="people-screen" onclick="goTo('people-screen')">🤝<span>People</span></button>
+</div>
+
+<script>
+// ---------- Storage ----------
+const STORAGE_KEY = 'focusmode_data_v1';
+function loadData() {
+  const raw = localStorage.getItem(STORAGE_KEY);
+  if (raw) return JSON.parse(raw);
+  return {
+    habits: [
+      { id: 'h1', name: 'Morning walk', repeat: 'daily', doneDates: [] },
+      { id: 'h2', name: 'No phone after 10pm', repeat: 'daily', doneDates: [] }
+    ],
+    connections: [],
+    onboarded: false,
+    treeScore: 55, // 0-100
+    lastActiveDate: todayStr(),
+    completedSessions: 0
+  };
+}
+function saveData() { localStorage.setItem(STORAGE_KEY, JSON.stringify(data)); }
+function todayStr() { return new Date().toISOString().slice(0,10); }
+
+let data = loadData();
+if (!data.connections) data.connections = [];
+if (typeof data.onboarded === 'undefined') data.onboarded = true; // existing users skip onboarding
+
+// ---------- Decay/growth on load ----------
+function applyDailyDecay() {
+  const today = todayStr();
+  if (data.lastActiveDate === today) return;
+  const last = new Date(data.lastActiveDate);
+  const now = new Date(today);
+  const daysGap = Math.round((now - last) / 86400000);
+  if (daysGap >= 1) {
+    const missed = Math.max(0, daysGap - 1);
+    if (missed === 0) {
+      // just one day passed - tiny natural fluctuation only if nothing done
+    } else if (missed <= 2) {
+      data.treeScore -= 3 * missed;
+    } else if (missed <= 7) {
+      data.treeScore -= 6 * missed;
+    } else {
+      data.treeScore -= 10 * missed;
+    }
+    data.treeScore = Math.max(0, data.treeScore);
+  }
+  data.lastActiveDate = today;
+  saveData();
+}
+applyDailyDecay();
+
+// ---------- Tree rendering ----------
+const STAGE_IMAGES = {
+  'bare_trunk': 'assets/tree-bare-trunk.jpg',
+  'sapling': 'assets/tree-sapling.jpg',
+  'young_tree': 'assets/tree-young-tree.jpg',
+  'full_tree': 'assets/tree-full.jpg',
+  'flourishing': 'assets/tree-flourishing.jpg'
+};
+
+function stageForScore(score) {
+  if (score < 15) return { name: 'Bare trunk', sub: 'A fresh start grows fast', idx: 0 };
+  if (score < 35) return { name: 'Sapling', sub: 'Just getting going', idx: 1 };
+  if (score < 55) return { name: 'Young tree', sub: 'Steady progress', idx: 2 };
+  if (score < 80) return { name: 'Full tree', sub: 'Consistent and strong', idx: 3 };
+  return { name: 'Flourishing', sub: 'A long streak - it shows', idx: 4 };
+}
+
+function renderTree() {
+  const s = stageForScore(data.treeScore);
+  const stageKeys = ['bare_trunk', 'sapling', 'young_tree', 'full_tree', 'flourishing'];
+  const photo = document.getElementById('tree-photo');
+  if (photo) {
+    const src = STAGE_IMAGES[stageKeys[s.idx]];
+    if (photo.dataset.stage !== stageKeys[s.idx]) {
+      photo.src = src;
+      photo.dataset.stage = stageKeys[s.idx];
+    }
+    photo.style.filter = 'none';
+    photo.style.opacity = '1';
+  }
+  document.getElementById('tree-stage-label').textContent = s.name;
+  document.getElementById('tree-stage-sub').textContent = s.sub;
+}
+
+// ---------- Habits ----------
+function renderHabits() {
+  const list = document.getElementById('habit-list');
+  const today = todayStr();
+  list.innerHTML = '';
+  data.habits.forEach(h => {
+    const done = h.doneDates.includes(today);
+    const row = document.createElement('div');
+    row.className = 'habit-row';
+    row.innerHTML = `<input type="checkbox" ${done ? 'checked' : ''} onchange="toggleHabit('${h.id}', this.checked)"><span>${h.name}</span>`;
+    list.appendChild(row);
+  });
+}
+function toggleHabit(id, checked) {
+  const today = todayStr();
+  const h = data.habits.find(x => x.id === id);
+  if (checked) {
+    if (!h.doneDates.includes(today)) h.doneDates.push(today);
+    data.treeScore = Math.min(100, data.treeScore + 4);
+  } else {
+    h.doneDates = h.doneDates.filter(d => d !== today);
+    data.treeScore = Math.max(0, data.treeScore - 4);
+  }
+  saveData();
+  renderTree();
+}
+
+let selectedRepeat = 'daily';
+function selectRepeat(el) {
+  document.querySelectorAll('#habit-new-screen .chip').forEach(c => c.classList.remove('selected'));
+  el.classList.add('selected');
+  selectedRepeat = el.dataset.repeat;
+}
+function saveHabit() {
+  const name = document.getElementById('habit-name-input').value.trim();
+  if (!name) { alert('Give the habit a name first.'); return; }
+  data.habits.push({ id: 'h' + Date.now(), name, repeat: selectedRepeat, doneDates: [] });
+  saveData();
+  document.getElementById('habit-name-input').value = '';
+  goTo('home-screen');
+}
+
+// ---------- Navigation ----------
+function goTo(screenId) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(screenId).classList.add('active');
+  document.querySelectorAll('.nav-btn').forEach(b => b.classList.toggle('active', b.dataset.screen === screenId));
+  if (screenId === 'home-screen') { renderTree(); renderHabits(); }
+}
+
+// ---------- Session setup ----------
+const blockModes = [
+  { id: 'chosen', label: 'Chosen apps only', sub: 'Pick which apps get blocked' },
+  { id: 'whole', label: 'Whole phone', sub: 'Everything blocked except calls' },
+  { id: 'whole-except', label: 'Whole phone, except...', sub: 'Block everything but a few apps' },
+  { id: 'none', label: 'No blocking', sub: 'Just track the session' }
+];
+let selectedBlockMode = 'chosen';
+function renderBlockOptions() {
+  const wrap = document.getElementById('block-mode-options');
+  wrap.innerHTML = '';
+  blockModes.forEach(m => {
+    const row = document.createElement('div');
+    row.style = 'display:flex; align-items:center; gap:10px; padding:10px 0; cursor:pointer;';
+    row.innerHTML = `<input type="radio" name="blockmode" ${m.id===selectedBlockMode?'checked':''} style="width:18px;height:18px;"><div><div style="font-weight:500; font-size:14px;">${m.label}</div><div class="muted" style="font-size:12px;">${m.sub}</div></div>`;
+    row.onclick = () => { selectedBlockMode = m.id; renderBlockOptions(); };
+    wrap.appendChild(row);
+  });
+}
+const durations = [15, 25, 60];
+let selectedDuration = 25;
+function renderDurationOptions() {
+  const wrap = document.getElementById('duration-options');
+  wrap.innerHTML = '';
+  durations.forEach(d => {
+    const chip = document.createElement('span');
+    chip.className = 'chip' + (d === selectedDuration ? ' selected' : '');
+    chip.textContent = d + ' min';
+    chip.onclick = () => { selectedDuration = d; renderDurationOptions(); };
+    wrap.appendChild(chip);
+  });
+}
+
+// ---------- Session runtime ----------
+let sessionSecondsLeft = 0;
+let sessionTotalSeconds = 0;
+let sessionTimerHandle = null;
+let holdInterval = null;
+let holdProgress = 0;
+
+function startSession() {
+  sessionTotalSeconds = selectedDuration * 60;
+  sessionSecondsLeft = sessionTotalSeconds;
+  const modeLabels = { chosen: 'blocking chosen apps', whole: 'blocking the whole phone', 'whole-except': 'blocking most of the phone', none: 'no blocking - just tracking' };
+  document.getElementById('session-blocking-label').textContent = 'Focus session - ' + modeLabels[selectedBlockMode];
+  updateTimerDisplay();
+  goTo('session-screen');
+  sessionTimerHandle = setInterval(tickSession, 1000);
+}
+function updateTimerDisplay() {
+  const m = Math.floor(sessionSecondsLeft / 60).toString().padStart(2,'0');
+  const s = (sessionSecondsLeft % 60).toString().padStart(2,'0');
+  document.getElementById('timer-display').textContent = m + ':' + s;
+  const progress = 1 - (sessionSecondsLeft / sessionTotalSeconds);
+  const projectedScore = Math.min(100, data.treeScore + progress*15);
+  const stageKeys = ['bare_trunk', 'sapling', 'young_tree', 'full_tree', 'flourishing'];
+  const stage = stageForScore(projectedScore);
+  const photo = document.getElementById('session-tree-photo');
+  if (photo) {
+    photo.src = STAGE_IMAGES[stageKeys[stage.idx]];
+  }
+}
+function tickSession() {
+  sessionSecondsLeft--;
+  updateTimerDisplay();
+  if (sessionSecondsLeft <= 0) {
+    clearInterval(sessionTimerHandle);
+    finishSession(true);
+  }
+}
+function finishSession(completed) {
+  if (completed) {
+    data.treeScore = Math.min(100, data.treeScore + 15);
+    data.completedSessions++;
+  } else {
+    data.treeScore = Math.min(100, data.treeScore + 3);
+  }
+  saveData();
+  goTo('home-screen');
+}
+
+// hold-to-quit
+const holdBtn = document.getElementById('hold-quit');
+const holdFill = document.getElementById('hold-fill');
+function startHold() {
+  holdProgress = 0;
+  holdInterval = setInterval(() => {
+    holdProgress += 100 / 15;
+    holdFill.style.width = Math.min(100, holdProgress) + '%';
+    if (holdProgress >= 100) {
+      clearInterval(holdInterval);
+      clearInterval(sessionTimerHandle);
+      goTo('quit-reason-screen');
+      holdFill.style.width = '0%';
+    }
+  }, 100);
+}
+function cancelHold() {
+  clearInterval(holdInterval);
+  holdFill.style.width = '0%';
+}
+holdBtn.addEventListener('mousedown', startHold);
+holdBtn.addEventListener('touchstart', startHold);
+holdBtn.addEventListener('mouseup', cancelHold);
+holdBtn.addEventListener('mouseleave', cancelHold);
+holdBtn.addEventListener('touchend', cancelHold);
+
+function confirmQuit(reason) {
+  finishSession(false);
+}
+
+// ---------- Ambient sound ----------
+const forestAudio = new Audio('assets/forest-ambience.mp3');
+forestAudio.loop = true;
+let isPlayingAmbient = false;
+function toggleAmbient(iconEl, labelEl, onLabel, offLabel) {
+  if (isPlayingAmbient) {
+    forestAudio.pause();
+    isPlayingAmbient = false;
+    iconEl.textContent = '🔈';
+    labelEl.textContent = offLabel;
+  } else {
+    forestAudio.play().catch(() => {
+      labelEl.textContent = 'Couldn\'t play (check connection)';
+    });
+    isPlayingAmbient = true;
+    iconEl.textContent = '🔉';
+    labelEl.textContent = onLabel;
+  }
+}
+document.getElementById('sound-toggle').onclick = () => toggleAmbient(document.getElementById('sound-icon'), document.getElementById('sound-label'), 'Playing forest sounds', 'Play forest sounds');
+document.getElementById('session-sound-toggle').onclick = () => toggleAmbient(document.getElementById('session-sound-icon'), document.getElementById('session-sound-label'), 'Forest sounds on', 'Forest sounds off');
+
+// ---------- Init ----------
+document.getElementById('today-date').textContent = new Date().toLocaleDateString(undefined, { weekday: 'long', month: 'long', day: 'numeric' });
+renderTree();
+renderHabits();
+renderBlockOptions();
+renderDurationOptions();
+
+// ---------- Onboarding ----------
+if (data.onboarded) {
+  document.getElementById('onboarding-screen').classList.remove('active');
+  document.getElementById('home-screen').classList.add('active');
+}
+function finishOnboarding() {
+  data.onboarded = true;
+  saveData();
+  goTo('habit-new-screen');
+}
+
+function setTestScore(score) {
+  data.treeScore = score;
+  saveData();
+  renderTree();
+}
+
+// ---------- People / sharing ----------
+function initials(name) {
+  return name.trim().split(/\s+/).map(w => w[0]).join('').slice(0,2).toUpperCase();
+}
+function renderPeople() {
+  const wrap = document.getElementById('people-list');
+  if (data.connections.length === 0) {
+    wrap.innerHTML = '<p class="muted" style="margin:0;">No one added yet. Sharing is entirely optional.</p>';
+    return;
+  }
+  wrap.innerHTML = '';
+  data.connections.forEach(c => {
+    const sharedNames = c.sharedHabitIds.map(id => {
+      const h = data.habits.find(x => x.id === id);
+      return h ? h.name : null;
+    }).filter(Boolean);
+    const row = document.createElement('div');
+    row.className = 'connection-row';
+    row.innerHTML = `
+      <div class="avatar">${initials(c.name)}</div>
+      <div style="flex:1;">
+        <p style="margin:0; font-size:14px;">${c.name} <span class="muted">(${c.relation.toLowerCase()})</span></p>
+        <p class="muted" style="margin:2px 0 0; font-size:12px;">Sharing: ${sharedNames.length ? sharedNames.join(', ') : 'nothing yet'}</p>
+      </div>`;
+    wrap.appendChild(row);
+  });
+}
+
+let selectedRel = 'Partner';
+function selectRel(el) {
+  document.querySelectorAll('#add-person-screen .chip').forEach(c => c.classList.remove('selected'));
+  el.classList.add('selected');
+  selectedRel = el.dataset.rel;
+}
+function renderSharePicker() {
+  const wrap = document.getElementById('share-habit-picker');
+  wrap.innerHTML = '';
+  data.habits.forEach(h => {
+    const row = document.createElement('label');
+    row.style = 'display:flex; align-items:center; gap:10px; padding:8px 0;';
+    row.innerHTML = `<input type="checkbox" value="${h.id}" style="width:18px; height:18px;"><span style="font-size:14px;">${h.name}</span>`;
+    wrap.appendChild(row);
+  });
+}
+function savePerson() {
+  const name = document.getElementById('person-name-input').value.trim();
+  if (!name) { alert('Give them a name first.'); return; }
+  const checked = Array.from(document.querySelectorAll('#share-habit-picker input:checked')).map(el => el.value);
+  data.connections.push({ id: 'p' + Date.now(), name, relation: selectedRel, sharedHabitIds: checked });
+  saveData();
+  document.getElementById('person-name-input').value = '';
+  goTo('people-screen');
+}
+
+const originalGoTo = goTo;
+goTo = function(screenId) {
+  originalGoTo(screenId);
+  if (screenId === 'people-screen') renderPeople();
+  if (screenId === 'add-person-screen') renderSharePicker();
+};
+</script>
+</body>
+</html>
